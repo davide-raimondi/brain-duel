@@ -4,28 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Brain Duel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f2f2f7; 
-            --surface-color: rgba(255, 255, 255, 0.62); 
-            --surface-hover: rgba(0, 0, 0, 0.04); 
-            --surface-active: rgba(0, 0, 0, 0.08);
+            --bg-color: #eef2ff;
+            --surface-color: rgba(255, 255, 255, 0.68);
+            --surface-elevated: rgba(255, 255, 255, 0.82);
+            --surface-hover: rgba(15, 23, 42, 0.04);
+            --surface-active: rgba(15, 23, 42, 0.08);
             
-            --text-primary: #1c1c1e;
-            --text-secondary: #636366;
-            --border-color: rgba(255, 255, 255, 0.5);
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-glass: rgba(255, 255, 255, 0.75);
+            --border-subtle: rgba(15, 23, 42, 0.07);
             
             --brand-color: #007aff;
-            --correct-color: #34c759;
-            --incorrect-color: #ff3b30;
-            --freeze-color: #5ac8fa;
+            --brand-glow: rgba(0, 122, 255, 0.35);
+            --correct-color: #10b981;
+            --incorrect-color: #f43f5e;
+            --freeze-color: #06b6d4;
             
-            --p1-color: #32ade6;
-            --p2-color: #ff2d55;
+            --p1-color: #0ea5e9;
+            --p2-color: #f43f5e;
             
-            --radius-sm: 12px;
-            --radius-md: 18px;
-            --radius-lg: 32px;
+            --radius-sm: 14px;
+            --radius-md: 20px;
+            --radius-lg: 36px;
             
             --theme-current: var(--brand-color);
         }
@@ -34,7 +40,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
         }
@@ -51,7 +57,7 @@
             overflow: hidden;
         }
 
-        /* Sfondo SVG Fisso e Animato */
+        /* Sfondo Mesh + Vettori Animati */
         .app-background {
             position: fixed;
             top: 0;
@@ -63,12 +69,30 @@
             pointer-events: none;
         }
 
-        .float-slow { animation: float 8s ease-in-out infinite; }
-        .float-med { animation: float 6s ease-in-out infinite reverse; }
+        .float-slow {
+            animation: float 10s ease-in-out infinite;
+            transform-box: fill-box;
+            transform-origin: center;
+        }
+        .float-med {
+            animation: float 7s ease-in-out infinite reverse;
+            transform-box: fill-box;
+            transform-origin: center;
+        }
+        .pulse-glow {
+            animation: pulseBlob 12s ease-in-out infinite alternate;
+            transform-box: fill-box;
+            transform-origin: center;
+        }
         
         @keyframes float {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-18px) rotate(3deg); }
+            50% { transform: translateY(-20px) rotate(4deg); }
+        }
+
+        @keyframes pulseBlob {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.12); }
         }
 
         /* Canvas Coriandoli */
@@ -78,65 +102,72 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: 10;
+            z-index: 30;
             pointer-events: none;
         }
 
+        /* Contenitore VisionOS Spatial Glass */
         .app-container {
             width: 100%;
             max-width: 440px;
             max-height: 92vh; 
             overflow-y: auto;
-            background-color: var(--surface-color);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.52) 100%);
+            backdrop-filter: blur(32px) saturate(190%);
+            -webkit-backdrop-filter: blur(32px) saturate(190%);
             border-radius: var(--radius-lg);
             padding: 28px 22px;
             position: relative;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.12), 0 6px 12px rgba(0,0,0,0.05);
-            border: 1px solid var(--border-color);
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 
+                0 28px 60px -12px rgba(15, 23, 42, 0.16),
+                0 8px 24px -4px rgba(15, 23, 42, 0.06),
+                inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+                inset 0 -1px 1px rgba(255, 255, 255, 0.4);
+            border: 1px solid var(--border-glass);
+            transition: border-color 0.35s ease, box-shadow 0.35s ease;
         }
 
         .app-container.frozen {
-            border-color: var(--freeze-color);
-            box-shadow: 0 0 30px rgba(90, 200, 250, 0.35);
+            border-color: #67e8f9;
+            box-shadow: 
+                0 0 40px rgba(6, 182, 212, 0.35),
+                inset 0 0 25px rgba(103, 232, 249, 0.35);
         }
 
-        .app-container::-webkit-scrollbar { width: 5px; }
+        .app-container::-webkit-scrollbar { width: 4px; }
         .app-container::-webkit-scrollbar-track { background: transparent; }
-        .app-container::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 10px; }
+        .app-container::-webkit-scrollbar-thumb { background: rgba(15, 23, 42, 0.15); border-radius: 10px; }
 
-        /* Schermate */
+        /* Transizioni Schermate */
         .screen {
             display: none;
             opacity: 0;
-            transform: scale(0.98);
-            transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+            transform: translateY(10px) scale(0.985);
+            transition: opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1), transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .screen.active {
             display: block;
             opacity: 1;
-            transform: scale(1);
+            transform: translateY(0) scale(1);
         }
 
-        h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 4px; }
-        h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; }
+        h1 { font-size: 2.2rem; font-weight: 900; letter-spacing: -0.04em; }
+        h2 { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 16px; }
         
         .subtitle {
             color: var(--text-secondary);
             font-size: 0.95rem;
-            font-weight: 500;
+            font-weight: 600;
             margin-bottom: 20px;
-            line-height: 1.4;
+            line-height: 1.45;
         }
 
         /* Header e Logo */
         .header-container {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             margin-bottom: 20px;
         }
 
@@ -147,57 +178,140 @@
         }
 
         .cool-title {
-            font-size: 2.3rem;
+            font-size: 2.45rem;
             font-weight: 900;
             margin: 0;
-            letter-spacing: -1px;
+            letter-spacing: -1.5px;
             color: var(--text-primary);
-            line-height: 1.05;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            gap: 2px;
         }
 
         .cool-title .highlight {
-            background: linear-gradient(135deg, var(--brand-color), var(--p1-color));
+            background: linear-gradient(135deg, #007aff 0%, #00c6ff 50%, #6366f1 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0px 4px 12px rgba(0, 122, 255, 0.25));
+            filter: drop-shadow(0px 6px 14px rgba(0, 122, 255, 0.28));
             display: inline-block;
+            padding-right: 4px;
         }
 
         .subtitle-badge {
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             font-weight: 800;
             color: var(--brand-color);
-            margin-top: 6px;
-            letter-spacing: 1.5px;
+            margin-top: 8px;
+            letter-spacing: 1.6px;
             text-transform: uppercase;
-            background: rgba(0, 122, 255, 0.12);
-            padding: 4px 10px;
+            background: linear-gradient(90deg, rgba(0, 122, 255, 0.14), rgba(0, 198, 255, 0.08));
+            padding: 5px 12px;
             border-radius: 20px;
-            border: 1px solid rgba(0, 122, 255, 0.2);
+            border: 1px solid rgba(0, 122, 255, 0.22);
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.08);
             transition: all 0.3s ease;
         }
 
-        /* Statistiche Rapide Home */
+        /* Bento Dashboard Statistiche */
         .stats-pill {
-            display: flex;
-            justify-content: space-around;
-            background: rgba(255, 255, 255, 0.45);
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid var(--border-glass);
             border-radius: var(--radius-md);
-            padding: 12px;
+            padding: 12px 8px;
             margin-bottom: 20px;
-            font-size: 0.85rem;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04), inset 0 1px 0 #fff;
         }
-        .stat-box { text-align: center; }
-        .stat-val { font-weight: 800; font-size: 1.1rem; color: var(--text-primary); }
-        .stat-lbl { color: var(--text-secondary); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .stat-box {
+            text-align: center;
+            position: relative;
+        }
+        .stat-box:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            right: -4px;
+            top: 15%;
+            height: 70%;
+            width: 1px;
+            background: rgba(15, 23, 42, 0.08);
+        }
+        .stat-val {
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+        .stat-lbl {
+            color: var(--text-secondary);
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
 
-        /* Input Nomi 1v1 */
+        /* Selettore Modalità Tattile */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .mode-card {
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: var(--radius-md);
+            padding: 16px 12px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+        }
+
+        .mode-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+        }
+
+        .mode-icon { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2.2px; }
+
+        .mode-card.selected {
+            background: rgba(255, 255, 255, 0.92);
+            border-color: var(--brand-color);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px -6px rgba(0, 122, 255, 0.25);
+        }
+
+        .mode-card.selected .mode-icon-wrap {
+            background: linear-gradient(135deg, #007aff, #00c6ff);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.35);
+        }
+
+        /* Input Nomi per 1v1 */
         .names-box {
             display: none;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             animation: fadeIn 0.25s ease;
         }
         .names-box.visible { display: grid; }
@@ -212,213 +326,284 @@
             padding: 12px 14px;
             border-radius: var(--radius-sm);
             border: 2px solid transparent;
-            background: rgba(255, 255, 255, 0.65);
+            background: rgba(255, 255, 255, 0.75);
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text-primary);
             outline: none;
             transition: all 0.2s;
             user-select: text;
+            box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.03);
         }
-        .name-input.p1-in { border-color: rgba(50, 173, 230, 0.4); }
-        .name-input.p1-in:focus { border-color: var(--p1-color); background: #fff; }
-        .name-input.p2-in { border-color: rgba(255, 45, 85, 0.4); }
-        .name-input.p2-in:focus { border-color: var(--p2-color); background: #fff; }
+        .name-input.p1-in { border-color: rgba(14, 165, 233, 0.35); }
+        .name-input.p1-in:focus { border-color: var(--p1-color); background: #fff; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
+        .name-input.p2-in { border-color: rgba(244, 63, 94, 0.35); }
+        .name-input.p2-in:focus { border-color: var(--p2-color); background: #fff; box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15); }
 
-        /* Pulsanti */
+        /* Pulsanti Generali e Categorie Bento */
         .btn {
-            background-color: var(--theme-current);
+            background: linear-gradient(135deg, var(--theme-current), #2563eb);
             color: #ffffff;
             border: none;
             border-radius: var(--radius-md);
             padding: 16px 20px;
-            font-size: 1.05rem;
-            font-weight: 700;
+            font-size: 1.02rem;
+            font-weight: 800;
             cursor: pointer;
             width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
-            transition: transform 0.15s ease, opacity 0.15s ease, background-color 0.2s;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, opacity 0.15s;
+            box-shadow: 0 8px 20px -4px rgba(0, 122, 255, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
         }
 
-        .btn svg { width: 22px; height: 22px; stroke-width: 2.5px; }
-        .btn:active { transform: scale(0.96); opacity: 0.9; }
-
-        .btn-outline {
-            background-color: rgba(255, 255, 255, 0.48);
-            border: 1px solid rgba(255, 255, 255, 0.7);
-            color: var(--text-primary);
-            box-shadow: none;
-        }
-        .btn-outline:active { background-color: var(--surface-active); }
-
-        .btn-mix {
-            background: linear-gradient(135deg, #007aff, #5856d6);
-            color: #fff;
-            border: none;
-        }
-
-        /* Griglia Categorie & Modalità */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .mode-card {
-            background-color: var(--surface-hover);
-            border: 2px solid transparent;
-            border-radius: var(--radius-md);
-            padding: 16px 12px;
-            text-align: center;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .mode-icon { width: 28px; height: 28px; stroke: currentColor; stroke-width: 2px; }
-
-        .mode-card.selected {
-            background-color: rgba(0, 122, 255, 0.14);
-            border-color: var(--brand-color);
-            color: var(--brand-color);
-        }
+        .btn svg { width: 20px; height: 20px; stroke-width: 2.5px; }
+        .btn:active { transform: scale(0.96); opacity: 0.92; }
 
         .category-list { display: flex; flex-direction: column; gap: 10px; }
+
+        .cat-btn {
+            background: rgba(255, 255, 255, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04), inset 0 1px 0 #ffffff;
+        }
+
+        .cat-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.07);
+        }
+        .cat-btn:active { transform: scale(0.97); }
+
+        .cat-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .cat-icon-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.35);
+        }
+        .cat-icon-box svg { width: 20px; height: 20px; stroke-width: 2.3px; }
+
+        .cat-arrow {
+            width: 18px;
+            height: 18px;
+            stroke: var(--text-secondary);
+            stroke-width: 2.5px;
+            opacity: 0.5;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        .cat-btn:hover .cat-arrow { transform: translateX(3px); opacity: 0.9; }
+
+        /* Colori Specifici Categorie */
+        .cat-mix {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 5s ease infinite;
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 10px 24px -6px rgba(124, 58, 237, 0.45), inset 0 1px 0 rgba(255,255,255,0.35);
+        }
+        .cat-mix:hover {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+            box-shadow: 0 12px 28px -4px rgba(124, 58, 237, 0.55);
+        }
+        .cat-mix .cat-icon-box {
+            background: rgba(255, 255, 255, 0.22);
+            box-shadow: none;
+        }
+        .cat-mix .cat-arrow { stroke: #ffffff; opacity: 0.85; }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .icon-storia { background: linear-gradient(135deg, #f59e0b, #ea580c); }
+        .icon-geo { background: linear-gradient(135deg, #10b981, #059669); }
+        .icon-cinema { background: linear-gradient(135deg, #ec4899, #e11d48); }
+        .icon-scienza { background: linear-gradient(135deg, #06b6d4, #2563eb); }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            color: var(--text-primary);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+        }
 
         /* Top Bar */
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
         .icon-btn {
-            background: var(--surface-hover);
-            border: none;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.9);
             color: var(--text-primary);
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: background 0.2s ease;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+            transition: all 0.2s ease;
         }
 
-        .icon-btn:active { background: var(--surface-active); }
+        .icon-btn:active { transform: scale(0.92); background: #fff; }
         .icon-btn svg { width: 20px; height: 20px; stroke: currentColor; }
         .icon-btn .icon-back { margin-right: 2px; }
 
         .badge {
-            background-color: var(--surface-hover);
-            color: var(--text-secondary);
-            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            color: var(--text-primary);
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
+            font-size: 0.82rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
         }
 
-        /* Barra Timer */
+        /* Barra Timer con Glow */
         .timer-container {
             width: 100%;
-            height: 8px;
-            background-color: var(--surface-hover);
-            border-radius: 4px;
-            margin-bottom: 18px;
+            height: 9px;
+            background-color: rgba(15, 23, 42, 0.07);
+            border-radius: 10px;
+            margin-bottom: 16px;
             overflow: hidden;
+            padding: 1.5px;
         }
 
         .timer-fill {
             height: 100%;
-            background-color: var(--theme-current);
+            background: linear-gradient(90deg, var(--theme-current), #38bdf8);
             width: 100%;
-            border-radius: 4px;
-            transition: background-color 0.3s;
+            border-radius: 8px;
+            box-shadow: 0 0 10px var(--brand-glow);
+            transition: background 0.3s;
         }
-        .timer-fill.frozen-bar { background-color: var(--freeze-color) !important; }
+        .timer-fill.frozen-bar {
+            background: linear-gradient(90deg, #06b6d4, #67e8f9) !important;
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.6);
+        }
 
         /* Barra Aiuti (Power-ups) */
         .lifelines-bar {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 18px;
         }
 
         .lifeline-btn {
-            background: rgba(255, 255, 255, 0.55);
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.95);
             border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 0.85rem;
-            font-weight: 700;
+            padding: 9px 16px;
+            font-size: 0.82rem;
+            font-weight: 800;
             color: var(--text-primary);
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 7px;
             transition: all 0.2s;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05), inset 0 1px 0 #fff;
         }
-        .lifeline-btn svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2.5px; }
+        .lifeline-btn svg { width: 17px; height: 17px; stroke: var(--brand-color); stroke-width: 2.3px; flex-shrink: 0; }
         .lifeline-btn:active:not(:disabled) { transform: scale(0.94); }
         .lifeline-btn:disabled {
             opacity: 0.35;
             cursor: not-allowed;
             text-decoration: line-through;
+            box-shadow: none;
         }
 
-        /* Testo Domanda */
+        /* Card Domanda Sospesa */
+        .question-card {
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-md);
+            padding: 22px 18px;
+            margin-bottom: 18px;
+            box-shadow: 
+                0 10px 25px -5px rgba(15, 23, 42, 0.06),
+                inset 0 1px 0 #ffffff;
+        }
+
         .question-text {
-            font-size: 1.3rem;
-            font-weight: 700;
-            line-height: 1.35;
-            margin-bottom: 24px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            line-height: 1.38;
             text-align: center;
-            min-height: 75px;
+            min-height: 68px;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
         }
 
-        /* Opzioni Risposta con Lettere */
+        /* Opzioni Risposta con Animazione Staggered */
         .options-container { display: flex; flex-direction: column; gap: 10px; }
 
+        @keyframes optionSlideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .option {
-            background-color: rgba(255, 255, 255, 0.52);
+            background: rgba(255, 255, 255, 0.65);
             color: var(--text-primary);
-            border: 1px solid rgba(255, 255, 255, 0.7);
+            border: 1.5px solid rgba(255, 255, 255, 0.9);
             border-radius: var(--radius-md);
             padding: 14px 16px;
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 0.98rem;
+            font-weight: 700;
             text-align: left;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04), inset 0 1px 0 #ffffff;
+            animation: optionSlideIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) backwards;
         }
 
         .opt-letter {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.06);
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: rgba(15, 23, 42, 0.06);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -429,56 +614,66 @@
             transition: all 0.2s;
         }
 
-        .option:active:not(:disabled) { transform: scale(0.98); background-color: var(--surface-active); }
+        .option:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.92);
+            border-color: rgba(0, 122, 255, 0.35);
+        }
+
+        .option:active:not(:disabled) { transform: scale(0.975); }
 
         .option.hidden-5050 {
-            opacity: 0.2;
+            opacity: 0.18;
             pointer-events: none;
-            filter: blur(1px);
+            filter: blur(1.5px);
+            transform: scale(0.97);
         }
 
         /* Stati delle Opzioni */
         .option.selected-neutral {
-            background-color: #1c1c1e !important;
-            border-color: #1c1c1e !important;
+            background: linear-gradient(135deg, #1e293b, #0f172a) !important;
+            border-color: #0f172a !important;
             color: #ffffff !important;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
         }
         .option.selected-neutral .opt-letter {
-            background-color: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.2);
             color: #fff;
         }
 
         .option.correct {
-            background-color: rgba(52, 199, 89, 0.25) !important;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(16, 185, 129, 0.12)) !important;
             border-color: var(--correct-color) !important;
-            color: #1a6b2d !important; 
+            color: #065f46 !important;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2);
         }
         .option.correct .opt-letter {
-            background-color: var(--correct-color);
+            background: var(--correct-color);
             color: #fff;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
         }
 
         .option.incorrect {
-            background-color: rgba(255, 59, 48, 0.25) !important;
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.22), rgba(244, 63, 94, 0.12)) !important;
             border-color: var(--incorrect-color) !important;
-            color: #991f18 !important; 
+            color: #881337 !important;
         }
         .option.incorrect .opt-letter {
-            background-color: var(--incorrect-color);
+            background: var(--incorrect-color);
             color: #fff;
         }
 
         /* Identificatori Giocatori */
         .player-turn-badge {
             display: inline-block;
-            padding: 5px 14px;
-            border-radius: 12px;
+            padding: 6px 16px;
+            border-radius: 20px;
             font-weight: 800;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             margin-bottom: 8px;
             color: #ffffff;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         }
 
         /* Impostazioni */
@@ -486,104 +681,149 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            padding: 16px 4px;
+            border-bottom: 1px solid var(--border-subtle);
         }
         
-        .setting-label { font-weight: 600; font-size: 1rem; }
+        .setting-label { font-weight: 700; font-size: 0.98rem; }
         
         select.native-select {
-            background-color: var(--surface-hover);
+            background: rgba(255, 255, 255, 0.8);
             color: var(--text-primary);
-            border: none;
+            border: 1px solid rgba(15, 23, 42, 0.1);
             padding: 10px 14px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.95rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
             outline: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
         }
 
-        /* Toggle */
-        .toggle { position: relative; width: 50px; height: 30px; }
+        /* Toggle iOS */
+        .toggle { position: relative; width: 52px; height: 30px; flex-shrink: 0; }
         .toggle input { opacity: 0; width: 0; height: 0; }
         .slider {
             position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0,0,0,0.15); transition: .3s; border-radius: 30px;
+            background-color: rgba(15, 23, 42, 0.15); transition: .3s; border-radius: 30px;
         }
         .slider:before {
             position: absolute; content: ""; height: 26px; width: 26px; left: 2px; bottom: 2px;
-            background-color: white; transition: .3s; border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            background-color: white; transition: .3s cubic-bezier(0.22, 1, 0.36, 1); border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         input:checked + .slider { background-color: var(--brand-color); }
-        input:checked + .slider:before { transform: translateX(20px); }
+        input:checked + .slider:before { transform: translateX(22px); }
 
-        /* Punteggi Finali & Riepilogo */
-        .score-huge { font-size: 4rem; font-weight: 900; margin: 10px 0; line-height: 1; color: var(--text-primary); }
+        /* Anello Punteggio Singolo & Podio 1v1 */
+        .score-ring-wrap {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 10px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-ring-svg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 150px; height: 150px;
+            transform: rotate(-90deg);
+        }
+        .score-ring-bg { fill: none; stroke: rgba(15, 23, 42, 0.07); stroke-width: 10; }
+        .score-ring-prog {
+            fill: none;
+            stroke: url(#ringGrad);
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 390;
+            stroke-dashoffset: 390;
+            transition: stroke-dashoffset 1s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .score-huge { font-size: 3.4rem; font-weight: 900; line-height: 1; color: var(--text-primary); letter-spacing: -2px; }
 
         .podium-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 14px;
-            margin-bottom: 24px;
+            margin: 22px 0 26px 0;
         }
 
         .podium-card {
-            background-color: rgba(255, 255, 255, 0.45);
-            border: 2px solid transparent;
+            background: rgba(255, 255, 255, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.9);
             border-radius: var(--radius-md);
-            padding: 20px 12px;
+            padding: 22px 12px 18px 12px;
             text-align: center;
+            position: relative;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+            transition: transform 0.3s ease;
         }
 
         .podium-card.winner {
-            border-color: #ffcc00;
-            background-color: rgba(255, 204, 0, 0.2);
-            box-shadow: 0 8px 24px rgba(255, 204, 0, 0.2);
+            border-color: #f59e0b;
+            background: linear-gradient(180deg, rgba(254, 243, 199, 0.75) 0%, rgba(255, 255, 255, 0.85) 100%);
+            box-shadow: 0 12px 28px -6px rgba(245, 158, 11, 0.3);
+            transform: translateY(-4px);
         }
 
-        .podium-score { font-size: 2.4rem; font-weight: 800; margin-top: 6px; color: var(--text-primary); }
+        .podium-card.winner::before {
+            content: "👑";
+            position: absolute;
+            top: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.4rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+        }
+
+        .podium-score { font-size: 2.5rem; font-weight: 900; margin-top: 6px; color: var(--text-primary); letter-spacing: -1px; }
 
         /* Card Riepilogo Versus */
         .round-result-card {
-            background-color: rgba(255, 255, 255, 0.48);
+            background: rgba(255, 255, 255, 0.68);
             border-radius: var(--radius-md);
             padding: 16px;
             margin-bottom: 12px;
             text-align: left;
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
         }
         .result-row {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 10px 0; border-top: 1px solid rgba(0, 0, 0, 0.06);
+            padding: 9px 0; border-top: 1px solid var(--border-subtle);
         }
-        .result-player { font-weight: 700; display: flex; align-items: center; gap: 6px; font-size: 0.95rem; }
-        .result-answer { font-weight: 600; text-align: right; max-width: 55%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.9rem; }
+        .result-player { font-weight: 800; display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+        .result-answer { font-weight: 700; text-align: right; max-width: 58%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.88rem; }
 
         /* Modale Custom iOS per uscita */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.35);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 20;
+            z-index: 40;
             padding: 20px;
         }
         .modal-overlay.active { display: flex; }
         .modal-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(24px);
+            border: 1px solid #fff;
+            border-radius: 26px;
             width: 100%;
-            max-width: 300px;
-            padding: 22px;
+            max-width: 310px;
+            padding: 24px 20px;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            animation: popIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.25);
+            animation: popIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         @keyframes popIn {
             from { transform: scale(0.85); opacity: 0; }
@@ -593,18 +833,20 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 22px;
         }
         .modal-btn {
-            padding: 12px;
-            border-radius: 12px;
+            padding: 13px;
+            border-radius: 14px;
             border: none;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 0.95rem;
             cursor: pointer;
+            transition: transform 0.15s;
         }
-        .modal-btn.cancel { background: rgba(0,0,0,0.07); color: var(--text-primary); }
-        .modal-btn.danger { background: var(--incorrect-color); color: #fff; }
+        .modal-btn:active { transform: scale(0.95); }
+        .modal-btn.cancel { background: rgba(15, 23, 42, 0.07); color: var(--text-primary); }
+        .modal-btn.danger { background: var(--incorrect-color); color: #fff; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3); }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -621,8 +863,8 @@
     <!-- Modale Abbandona Partita -->
     <div class="modal-overlay" id="exit-modal">
         <div class="modal-card">
-            <h3 style="font-size: 1.2rem; margin-bottom: 6px;">Abbandona Partita</h3>
-            <p style="font-size: 0.9rem; color: var(--text-secondary);">Vuoi davvero tornare al menu principale? I progressi attuali andranno persi.</p>
+            <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 8px;">Abbandona Partita</h3>
+            <p style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); line-height: 1.4;">Vuoi davvero tornare al menu principale? I progressi attuali andranno persi.</p>
             <div class="modal-actions">
                 <button class="modal-btn cancel" onclick="closeExitModal()">Annulla</button>
                 <button class="modal-btn danger" onclick="forceExit()">Esci</button>
@@ -630,27 +872,69 @@
         </div>
     </div>
 
-    <!-- Sfondo SVG Integrato e Animato -->
+    <!-- Sfondo Mesh Aurora & Icone Vettoriali Corrette (senza sovrapposizione in alto a sinistra) -->
     <svg class="app-background" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
         <defs>
             <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#E0EAFC" />
-                <stop offset="100%" stop-color="#CFDEF3" />
+                <stop offset="0%" stop-color="#e0e7ff" />
+                <stop offset="50%" stop-color="#dbeafe" />
+                <stop offset="100%" stop-color="#f3e8ff" />
             </linearGradient>
-            <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#a1c4fd" />
-                <stop offset="100%" stop-color="#c2e9fb" />
-            </linearGradient>
+            <radialGradient id="blob1" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.5" />
+                <stop offset="100%" stop-color="#60a5fa" stop-opacity="0" />
+            </radialGradient>
+            <radialGradient id="blob2" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#c084fc" stop-opacity="0.4" />
+                <stop offset="100%" stop-color="#c084fc" stop-opacity="0" />
+            </radialGradient>
+            <radialGradient id="blob3" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.4" />
+                <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+            </radialGradient>
         </defs>
         <rect width="1080" height="1920" fill="url(#bgGrad)" />
-        <path d="M-200,300 C100,500 400,100 800,400 C1200,700 1300,200 1400,500 L1400,-200 L-200,-200 Z" fill="url(#accent)" opacity="0.6" />
-        <circle cx="900" cy="1600" r="400" fill="#ffffff" opacity="0.3" />
-        <circle cx="150" cy="1200" r="250" fill="url(#accent)" opacity="0.4" />
-        <g stroke="#ffffff" stroke-width="14" fill="none" opacity="0.75" stroke-linecap="round" stroke-linejoin="round">
-            <g class="float-slow" transform="translate(750, 400)"><circle cx="0" cy="0" r="120" /><ellipse cx="0" cy="0" rx="60" ry="120" /><line x1="-120" y1="0" x2="120" y2="0" /><line x1="-85" y1="-85" x2="85" y2="85" /></g>
-            <g class="float-med" transform="translate(300, 1400)"><ellipse cx="0" cy="0" rx="130" ry="40" transform="rotate(30)" /><ellipse cx="0" cy="0" rx="130" ry="40" transform="rotate(90)" /><ellipse cx="0" cy="0" rx="130" ry="40" transform="rotate(150)" /><circle cx="0" cy="0" r="15" fill="#ffffff" /></g>
-            <g class="float-med" transform="translate(250, 750) rotate(-15)"><rect x="-80" y="-50" width="160" height="100" rx="12" /><line x1="-80" y1="-10" x2="80" y2="-10" /><line x1="-50" y1="-50" x2="-30" y2="-10" /><line x1="0" y1="-50" x2="20" y2="-10" /><line x1="50" y1="-50" x2="70" y2="-10" /></g>
-            <g class="float-slow" transform="translate(800, 1100)"><rect x="-60" y="-100" width="120" height="20" rx="4" /><rect x="-40" y="-80" width="80" height="160" /><rect x="-60" y="80" width="120" height="20" rx="4" /><line x1="-20" y1="-80" x2="-20" y2="80" /><line x1="0" y1="-80" x2="0" y2="80" /><line x1="20" y1="-80" x2="20" y2="80" /></g>
+        
+        <!-- Aurora Mesh Blobs -->
+        <g transform="translate(220, 320)"><circle class="pulse-glow" cx="0" cy="0" r="600" fill="url(#blob1)" /></g>
+        <g transform="translate(880, 1520)"><circle class="pulse-glow" cx="0" cy="0" r="680" fill="url(#blob2)" /></g>
+        <g transform="translate(840, 480)"><circle class="float-slow" cx="0" cy="0" r="480" fill="url(#blob3)" /></g>
+
+        <!-- Elementi Vettoriali Posizionati in Gruppi Statici Esterni -->
+        <g stroke="#ffffff" stroke-width="12" fill="none" opacity="0.55" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Globo in alto a destra -->
+            <g transform="translate(860, 280)">
+                <g class="float-slow">
+                    <circle cx="0" cy="0" r="105" />
+                    <ellipse cx="0" cy="0" rx="50" ry="105" />
+                    <line x1="-105" y1="0" x2="105" y2="0" />
+                </g>
+            </g>
+            <!-- Atomo in basso a sinistra -->
+            <g transform="translate(200, 1580)">
+                <g class="float-med">
+                    <ellipse cx="0" cy="0" rx="115" ry="36" transform="rotate(30)" />
+                    <ellipse cx="0" cy="0" rx="115" ry="36" transform="rotate(90)" />
+                    <ellipse cx="0" cy="0" rx="115" ry="36" transform="rotate(150)" />
+                    <circle cx="0" cy="0" r="14" fill="#ffffff" />
+                </g>
+            </g>
+            <!-- Stella / Scintilla morbida a metà sinistra -->
+            <g transform="translate(150, 760)">
+                <g class="float-slow">
+                    <path d="M0,-70 Q0,0 70,0 Q0,0 0,70 Q0,0 -70,0 Q0,0 0,-70 Z" fill="#ffffff" opacity="0.5" />
+                </g>
+            </g>
+            <!-- Colonna in basso a destra -->
+            <g transform="translate(890, 1260)">
+                <g class="float-med">
+                    <rect x="-54" y="-90" width="108" height="18" rx="5" />
+                    <rect x="-36" y="-72" width="72" height="144" />
+                    <rect x="-54" y="72" width="108" height="18" rx="5" />
+                    <line x1="-14" y1="-72" x2="-14" y2="72" />
+                    <line x1="14" y1="-72" x2="14" y2="72" />
+                </g>
+            </g>
         </g>
     </svg>
 
@@ -666,14 +950,14 @@
                     <p class="subtitle-badge" id="mode-badge-title">GIOCO SINGOLO</p>
                 </div>
                 <button class="icon-btn" onclick="showScreen('screen-settings')" aria-label="Impostazioni">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="3"></circle>
                         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                     </svg>
                 </button>
             </div>
 
-            <!-- Statistiche Salvate -->
+            <!-- Bento Statistiche Salvate -->
             <div class="stats-pill">
                 <div class="stat-box">
                     <div class="stat-val" id="stat-best">0%</div>
@@ -689,21 +973,26 @@
                 </div>
             </div>
 
+            <!-- Selettore Modalità -->
             <div class="grid-2">
                 <div id="mode-single" class="mode-card selected" onclick="setMode('single')">
-                    <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
+                    <div class="mode-icon-wrap">
+                        <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
                     Singolo
                 </div>
                 <div id="mode-versus" class="mode-card" onclick="setMode('versus')">
-                    <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
+                    <div class="mode-icon-wrap">
+                        <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
                     Versus (1v1)
                 </div>
             </div>
@@ -714,47 +1003,77 @@
                 <input type="text" id="input-p2" class="name-input p2-in" placeholder="Giocatore 2" maxlength="12" value="Giocatore 2">
             </div>
 
+            <!-- Bento Categorie -->
             <div class="category-list">
-                <button class="btn btn-mix" onclick="initGame('mix')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                    </svg>
-                    Mix Totale (Tutte)
+                <button class="cat-btn cat-mix" onclick="initGame('mix')">
+                    <div class="cat-left">
+                        <div class="cat-icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                        </div>
+                        <span>Mix Totale (Tutte)</span>
+                    </div>
+                    <svg class="cat-arrow" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
-                <button class="btn btn-outline" onclick="initGame('storia')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 21h18"></path><path d="M5 21v-4"></path><path d="M19 21v-4"></path>
-                        <path d="M3 7h18"></path><path d="M5 7v10"></path><path d="M9 7v10"></path>
-                        <path d="M15 7v10"></path><path d="M19 7v10"></path><path d="m12 3-9 4h18z"></path>
-                    </svg>
-                    Storia
+
+                <button class="cat-btn" onclick="initGame('storia')">
+                    <div class="cat-left">
+                        <div class="cat-icon-box icon-storia">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 21h18"></path><path d="M5 21v-4"></path><path d="M19 21v-4"></path>
+                                <path d="M3 7h18"></path><path d="M5 7v10"></path><path d="M9 7v10"></path>
+                                <path d="M15 7v10"></path><path d="M19 7v10"></path><path d="m12 3-9 4h18z"></path>
+                            </svg>
+                        </div>
+                        <span>Storia</span>
+                    </div>
+                    <svg class="cat-arrow" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
-                <button class="btn btn-outline" onclick="initGame('geografia')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                        <path d="M2 12h20"></path>
-                    </svg>
-                    Geografia
+
+                <button class="cat-btn" onclick="initGame('geografia')">
+                    <div class="cat-left">
+                        <div class="cat-icon-box icon-geo">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                                <path d="M2 12h20"></path>
+                            </svg>
+                        </div>
+                        <span>Geografia</span>
+                    </div>
+                    <svg class="cat-arrow" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
-                <button class="btn btn-outline" onclick="initGame('cinema')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
-                        <line x1="7" y1="2" x2="7" y2="22"></line>
-                        <line x1="17" y1="2" x2="17" y2="22"></line>
-                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                    </svg>
-                    Cinema
+
+                <button class="cat-btn" onclick="initGame('cinema')">
+                    <div class="cat-left">
+                        <div class="cat-icon-box icon-cinema">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                                <line x1="7" y1="2" x2="7" y2="22"></line>
+                                <line x1="17" y1="2" x2="17" y2="22"></line>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                            </svg>
+                        </div>
+                        <span>Cinema</span>
+                    </div>
+                    <svg class="cat-arrow" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
-                <button class="btn btn-outline" onclick="initGame('scienza')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M10 2v7.31"></path>
-                        <path d="M14 9.3V1.99"></path>
-                        <path d="M8.5 2h7"></path>
-                        <path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path>
-                        <path d="M5.52 16h12.96"></path>
-                    </svg>
-                    Scienza
+
+                <button class="cat-btn" onclick="initGame('scienza')">
+                    <div class="cat-left">
+                        <div class="cat-icon-box icon-scienza">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10 2v7.31"></path>
+                                <path d="M14 9.3V1.99"></path>
+                                <path d="M8.5 2h7"></path>
+                                <path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path>
+                                <path d="M5.52 16h12.96"></path>
+                            </svg>
+                        </div>
+                        <span>Scienza</span>
+                    </div>
+                    <svg class="cat-arrow" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
             </div>
         </div>
@@ -769,9 +1088,16 @@
                     </svg>
                 </button>
                 <h2 style="margin:0;">Impostazioni</h2>
-                <div style="width: 40px;"></div>
+                <div style="width: 42px;"></div>
             </div>
 
+            <div class="setting-item">
+                <span class="setting-label">Aiuti (50:50 e Congela)</span>
+                <label class="toggle">
+                    <input type="checkbox" id="set-lifelines" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
             <div class="setting-item">
                 <span class="setting-label">Effetti Sonori</span>
                 <label class="toggle">
@@ -780,7 +1106,7 @@
                 </label>
             </div>
             <div class="setting-item">
-                <span class="setting-label">Vibrazione</span>
+                <span class="setting-label">Vibrazione Aptica</span>
                 <label class="toggle">
                     <input type="checkbox" id="set-vib" checked>
                     <span class="slider"></span>
@@ -809,11 +1135,11 @@
         </div>
 
         <!-- SCREEN: TURN GATE -->
-        <div id="screen-gate" class="screen" style="text-align: center; padding-top: 20px;">
+        <div id="screen-gate" class="screen" style="text-align: center; padding: 24px 0 8px 0;">
             <div id="gate-badge" class="player-turn-badge">TURNO</div>
-            <h2 id="gate-title" style="font-size: 2.2rem; margin: 16px 0;">Giocatore 1</h2>
-            <p class="subtitle">Passa il telefono. Quando sei pronto, premi il pulsante per scoprire la domanda.</p>
-            <button class="btn" style="margin-top: 32px;" onclick="startTurnQuestion()">
+            <h2 id="gate-title" style="font-size: 2.3rem; font-weight: 900; margin: 14px 0;">Giocatore 1</h2>
+            <p class="subtitle">Passa il dispositivo. Quando sei pronto, premi il pulsante per svelare la domanda.</p>
+            <button class="btn" style="margin-top: 28px;" onclick="startTurnQuestion()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                 </svg>
@@ -831,7 +1157,7 @@
                     </svg>
                 </button>
                 <div id="quiz-badge" class="badge">1/5</div>
-                <div style="width: 40px;"></div>
+                <div style="width: 42px;"></div>
             </div>
 
             <div style="text-align: center; margin-bottom: 8px;">
@@ -842,57 +1168,77 @@
                 <div id="timer-bar" class="timer-fill"></div>
             </div>
 
-            <!-- Power-ups / Aiuti -->
-            <div class="lifelines-bar">
+            <!-- Power-ups / Aiuti con Nuove Icone Dedicate -->
+            <div class="lifelines-bar" id="lifelines-bar">
                 <button class="lifeline-btn" id="btn-5050" onclick="useFiftyFifty()">
+                    <!-- Icona Cerchio Diviso 50:50 -->
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="14.31" y1="8" x2="20.05" y2="17.94"></line>
-                        <line x1="9.69" y1="8" x2="21.17" y2="8"></line>
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none" opacity="0.28"></path>
+                        <line x1="12" y1="3" x2="12" y2="21"></line>
                     </svg>
                     50:50
                 </button>
                 <button class="lifeline-btn" id="btn-freeze" onclick="useFreeze()">
+                    <!-- Icona Fiocco di Neve / Ghiaccio -->
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="2" x2="12" y2="22"></line>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <polyline points="20 16 16 12 20 8"></polyline>
+                        <polyline points="4 8 8 12 4 16"></polyline>
+                        <polyline points="16 4 12 8 8 4"></polyline>
+                        <polyline points="8 20 12 16 16 20"></polyline>
                     </svg>
                     Congela Tempo
                 </button>
             </div>
 
-            <div id="question-text" class="question-text">Testo domanda?</div>
+            <div class="question-card">
+                <div id="question-text" class="question-text">Testo domanda?</div>
+            </div>
             
             <div id="options-container" class="options-container"></div>
         </div>
 
         <!-- SCREEN: GAME OVER -->
         <div id="screen-game-over" class="screen" style="text-align: center;">
-            <h2 id="go-title">Risultati Finali</h2>
+            <h2 id="go-title" style="font-size: 1.7rem; margin-bottom: 6px;">Risultati Finali</h2>
             <p class="subtitle" id="go-subtitle">Ottimo lavoro!</p>
 
-            <!-- Singolo -->
-            <div id="go-single" style="display: none; margin: 28px 0;">
-                <div class="score-huge" id="go-score-single">0</div>
-                <div style="color: var(--text-secondary); font-weight: 700;">su <span id="go-max-single">5</span></div>
+            <!-- Singolo con Anello SVG -->
+            <div id="go-single" style="display: none; margin: 22px 0;">
+                <div class="score-ring-wrap">
+                    <svg class="score-ring-svg" viewBox="0 0 150 150">
+                        <defs>
+                            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#007aff" />
+                                <stop offset="100%" stop-color="#00c6ff" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="score-ring-bg" cx="75" cy="75" r="62"></circle>
+                        <circle class="score-ring-prog" id="single-ring-circle" cx="75" cy="75" r="62"></circle>
+                    </svg>
+                    <div class="score-huge" id="go-score-single">0</div>
+                    <div style="color: var(--text-secondary); font-weight: 800; font-size: 0.85rem; margin-top: 2px;">su <span id="go-max-single">5</span></div>
+                </div>
             </div>
 
             <!-- Versus (Podio + Recap) -->
             <div id="go-versus" style="display: none;">
                 <div class="podium-grid">
                     <div class="podium-card" id="podium-p1">
-                        <div id="podium-name-p1" style="color: var(--p1-color); font-weight: 800; font-size: 1rem; text-transform: uppercase;">P1</div>
+                        <div id="podium-name-p1" style="color: var(--p1-color); font-weight: 800; font-size: 0.95rem; text-transform: uppercase;">P1</div>
                         <div class="podium-score" id="go-score-p1">0</div>
                     </div>
                     <div class="podium-card" id="podium-p2">
-                        <div id="podium-name-p2" style="color: var(--p2-color); font-weight: 800; font-size: 1rem; text-transform: uppercase;">P2</div>
+                        <div id="podium-name-p2" style="color: var(--p2-color); font-weight: 800; font-size: 0.95rem; text-transform: uppercase;">P2</div>
                         <div class="podium-score" id="go-score-p2">0</div>
                     </div>
                 </div>
 
                 <div style="text-align: left; margin: 24px 0 12px 0;">
-                    <h3 style="font-size: 1.15rem; margin-bottom: 2px;">Dettaglio Round</h3>
-                    <p style="color: var(--text-secondary); font-size: 0.85rem;">Ecco tutte le risposte svelate:</p>
+                    <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 2px;">Dettaglio Round</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 600;">Ecco tutte le risposte svelate:</p>
                 </div>
 
                 <div id="versus-recap-container"></div>
@@ -1183,13 +1529,22 @@
         }
 
         function updateLifelineButtons() {
+            const lifelinesEnabled = document.getElementById('set-lifelines').checked;
+            const bar = document.getElementById('lifelines-bar');
+            
+            if (!lifelinesEnabled) {
+                bar.style.display = 'none';
+                return;
+            }
+            
+            bar.style.display = 'flex';
             const activePlayerKey = (mode === 'single' || versusTurn === 1) ? 'p1' : 'p2';
             document.getElementById('btn-5050').disabled = !lifelines[activePlayerKey].fifty;
             document.getElementById('btn-freeze').disabled = !lifelines[activePlayerKey].freeze;
         }
 
         function useFiftyFifty() {
-            if (isLocked) return;
+            if (isLocked || !document.getElementById('set-lifelines').checked) return;
             const activePlayerKey = (mode === 'single' || versusTurn === 1) ? 'p1' : 'p2';
             if (!lifelines[activePlayerKey].fifty) return;
 
@@ -1207,7 +1562,7 @@
         }
 
         function useFreeze() {
-            if (isLocked) return;
+            if (isLocked || !document.getElementById('set-lifelines').checked) return;
             const activePlayerKey = (mode === 'single' || versusTurn === 1) ? 'p1' : 'p2';
             if (!lifelines[activePlayerKey].freeze) return;
 
@@ -1249,6 +1604,7 @@
             currentScrambledOpts.forEach((opt, idx) => {
                 const btn = document.createElement('button');
                 btn.className = 'option';
+                btn.style.animationDelay = `${idx * 0.05}s`;
                 btn.dataset.val = opt;
                 btn.innerHTML = `<span class="opt-letter">${letters[idx]}</span><span>${opt}</span>`;
                 btn.onclick = () => handleAnswer(opt, btn);
@@ -1413,6 +1769,14 @@
                 const prevBest = parseInt(localStorage.getItem('ti_best') || 0);
                 if (pct > prevBest) localStorage.setItem('ti_best', pct);
 
+                // Anima l'anello SVG del punteggio
+                const ring = document.getElementById('single-ring-circle');
+                const circumference = 390;
+                ring.style.strokeDashoffset = circumference;
+                setTimeout(() => {
+                    ring.style.strokeDashoffset = circumference - (pct / 100) * circumference;
+                }, 120);
+
                 document.getElementById('go-subtitle').innerText = pct >= 60 ? "Ottimo risultato!" : "Continua ad allenarti!";
                 if (pct >= 60) launchConfetti();
             } else {
@@ -1458,14 +1822,14 @@
                     const p1Text = round.p1 || 'Tempo Scaduto';
                     const p2Text = round.p2 || 'Tempo Scaduto';
 
-                    const p1ColorStr = p1Correct ? '#1a6b2d' : colorTextSec;
-                    const p2ColorStr = p2Correct ? '#1a6b2d' : colorTextSec;
+                    const p1ColorStr = p1Correct ? '#065f46' : colorTextSec;
+                    const p2ColorStr = p2Correct ? '#065f46' : colorTextSec;
 
                     recapContainer.innerHTML += `
                         <div class="round-result-card">
-                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px; font-weight: 700; text-transform: uppercase;">Domanda ${index + 1}</div>
-                            <div style="font-weight: 700; margin-bottom: 6px; line-height: 1.3; font-size: 1.05rem; color: var(--text-primary);">${round.q}</div>
-                            <div style="font-size: 0.9rem; color: #1a6b2d; margin-bottom: 12px; font-weight: 700;">Esatta: ${round.ans}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Domanda ${index + 1}</div>
+                            <div style="font-weight: 800; margin-bottom: 6px; line-height: 1.35; font-size: 1.02rem; color: var(--text-primary);">${round.q}</div>
+                            <div style="font-size: 0.88rem; color: #059669; margin-bottom: 12px; font-weight: 800;">Esatta: ${round.ans}</div>
                             
                             <div class="result-row">
                                 <div class="result-player" style="color: var(--p1-color);">
@@ -1514,13 +1878,13 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            const pieces = Array.from({ length: 55 }, () => ({
+            const pieces = Array.from({ length: 60 }, () => ({
                 x: Math.random() * canvas.width,
                 y: Math.random() * -canvas.height,
                 size: Math.random() * 8 + 5,
-                speedY: Math.random() * 3 + 2,
+                speedY: Math.random() * 3.2 + 2,
                 speedX: Math.random() * 2 - 1,
-                color: ['#007aff', '#34c759', '#ff2d55', '#ffcc00', '#5856d6'][Math.floor(Math.random() * 5)],
+                color: ['#007aff', '#10b981', '#f43f5e', '#f59e0b', '#7c3aed'][Math.floor(Math.random() * 5)],
                 rot: Math.random() * 360
             }));
 
