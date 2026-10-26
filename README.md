@@ -8,7 +8,7 @@
 
 **Brain Duel** è un gioco a quiz (Trivia) moderno, veloce e interattivo, progettato con un approccio **mobile-first** per schermi verticali. Unisce un'interfaccia pulita in stile **iOS Glassmorphism** a meccaniche competitive in locale, racchiudendo l'intera applicazione (struttura, stile, grafica vettoriale, logica e sintetizzatore audio) in **un singolo file HTML**.
 
-🎮 **[Gioca alla Live Demo qui](https://davide23567.github.io/brain-duel/)** *(attiva GitHub Pages nelle impostazioni del repository)*
+🎮 **[Gioca alla Live Demo qui](https://davide23567.github.io/brain-duel/)**
 
 ---
 
