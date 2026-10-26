@@ -41,33 +41,5 @@ Non serve alcuna installazione o build process:
 
 1. Clona il repository o scarica il file `index.html`:
    ```bash
-   git clone [https://github.com/Davide23567/brain-duel.git](https://github.com/Davide23567/brain-duel.git)
-   ```
-2. Apri `index.html` direttamente nel browser del tuo smartphone o PC.
-
-### Personalizzare le Domande
-Per aggiungere nuove domande o categorie, ti basta modificare l'oggetto `db` all'interno del tag `<script>`:
-
-```javascript
-const db = {
-    storia: [
-        { 
-            q: "Testo della tua domanda?", 
-            opts: ["Opzione 1", "Opzione 2", "Opzione 3", "Opzione 4"], 
-            ans: "Opzione 2" 
-        }
-    ]
-};
-```
-
----
-
-## 👨‍💻 Autore
-
-Sviluppato da **Davide** ([@Davide23567](https://github.com/Davide23567)) — Web Developer & Mobile Game Creator.
-
-* 🐙 **GitHub:** [github.com/Davide23567](https://github.com/Davide23567)
-
----
-
-📄 **Licenza:** Distribuito sotto licenza MIT. Sentiti libero di fare un fork, sperimentare e migliorare il gioco!
+   git clone [https://github.com/davide23567/brain-duel.git](https://github.com/davide23567/brain-duel.git)
+   
