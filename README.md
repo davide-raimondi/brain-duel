@@ -1,44 +1,39 @@
-<div align="center">
-
 # 🧠 Brain Duel
-**HTML5 • CSS3 • JavaScript • Mobile First • Zero Dependencies**
 
-</div>
+> Trivia game di cultura generale veloce, interattivo e ottimizzato per dispositivi mobile.
 
-Brain Duel è un gioco a quiz (Trivia) moderno, veloce e interattivo, progettato con un approccio mobile-first per schermi verticali. Unisce un'interfaccia pulita in stile iOS Glassmorphism a meccaniche competitive in locale, racchiudendo l'intera applicazione (struttura, stile, grafica vettoriale, logica e sintetizzatore audio) in un singolo file HTML.
+[![Gioca Ora](https://img.shields.io/badge/GIOCA%20ORA-Live%20su%20GitHub%20Pages-success?style=for-the-badge&logo=github)](https://davide-raimondi.github.io/brain-duel/)
 
-🎮 **[Gioca alla Live Demo qui](https://davide23567.github.io/brain-duel/)**
+**Brain Duel** è un gioco a quiz progettato per offrire partite rapide e coinvolgenti direttamente dal browser. Sviluppato in un'architettura single-file leggera e veloce, unisce un'interfaccia pulita a controlli touch immediati.
 
----
+## ✨ Funzionalità Principali
 
-## ✨ Caratteristiche Principali
+- 🌍 **Quiz di Cultura Generale**: Domande variegate per mettere alla prova le proprie conoscenze in partite rapide.
+- 📱 **Interfaccia Touch-Friendly**: Pulsanti ampi, layout verticale e transizioni fluide pensate per l'uso su smartphone.
+- ⚡ **Feedback Immediato**: Sistema di punteggio in tempo reale e indicatori visivi istantanei per ogni risposta.
+- 🚀 **Single-File Architecture**: Intero gioco contenuto in un unico file HTML, CSS e JavaScript.
 
-* **👤 Modalità Singolo & 👥 Versus (1v1 Locale):** Gioca da solo per battere il tuo record oppure sfida un amico sullo stesso smartphone in modalità Pass & Play.
-* **🕵️‍♂️ Suspense 1v1 (Risultati Nascosti):** Nella sfida a due giocatori, l'esito delle risposte resta segreto durante i turni per non avvantaggiare l'avversario. Errori, risposte esatte e vincitore vengono svelati solo nel riepilogo finale.
-* **⚡ Power-Up Integrati:** Ogni giocatore dispone di due aiuti strategici per partita:
-  * **50:50:** Rimuove istantaneamente due opzioni errate.
-  * **Congela Tempo:** Blocca il timer per riflettere senza pressione, attivando un feedback visivo glaciale sulla UI.
-* **🎨 UI/UX iOS Glassmorphism:** Pannelli semitrasparenti con `backdrop-filter`, icone vettoriali custom, animazioni fluide, coriandoli su canvas e sfondo SVG animato integrato nel codice.
-* **🔊 Audio Sintetizzato & Feedback Aptico:** Effetti sonori generati in tempo reale tramite Web Audio API (nessun file `.mp3` esterno) e vibrazione aptica sincronizzata sugli smartphone supportati.
-* **💾 Salvataggio Automatico:** Record personale, partite giocate e storico delle vittorie 1v1 salvati in locale tramite `localStorage`.
-* **📚 5 Categorie di Gioco:** Storia, Geografia, Cinema, Scienza e la modalità Mix Totale.
+## 🛠 Tecnologie Utilizzate
 
----
+- **HTML5** per la struttura dell'interfaccia di gioco.
+- **CSS3** per il design responsive, i temi visivi e le animazioni.
+- **Vanilla JavaScript (ES6+)** per la gestione dei turni, del timer, dei punteggi e della logica dei quiz.
 
-## 🛠️ Architettura "Single-File"
+## 🕹 Come Giocare
 
-Il progetto è strutturato in un unico file `index.html` senza librerie o asset esterni. Questa scelta architetturale garantisce:
-* **Portabilità Totale:** Si apre istantaneamente in qualsiasi browser mobile o desktop, anche offline.
-* **Sviluppo Immediato:** Perfetto per essere modificato e testato al volo da qualsiasi editor di testo o IDE, anche in mobilità, senza bisogno di server locali.
-* **Pronto per il Deploy:** Facilissimo da pubblicare su GitHub Pages o da impacchettare in una WebView per la distribuzione su store mobile.
+Gioca subito online dal tuo browser mobile o desktop:
 
----
+👉 **[Gioca ora a Brain Duel su GitHub Pages](https://davide-raimondi.github.io/brain-duel/)**
 
-## 🚀 Come Iniziare
+### Esecuzione in Locale
+1. Clona il repository:
+```bash
+git clone [https://github.com/davide-raimondi/brain-duel.git](https://github.com/davide-raimondi/brain-duel.git)
+```
+2. Apri il file `index.html` in qualsiasi browser moderno.
 
-Non serve alcuna installazione o build process:
+## 🤝 Crediti e Contatti
 
-1. Clona il repository o scarica il file `index.html`:
-   ```bash
-   git clone [https://github.com/davide23567/brain-duel.git](https://github.com/davide23567/brain-duel.git)
-   
+Sviluppato da **Davide Raimondi**.
+- **GitHub**: [@davide-raimondi](https://github.com/davide-raimondi)
+- **Instagram**: [@davide.raimondi94](https://www.instagram.com/davide.raimondi94)
